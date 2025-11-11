@@ -31,7 +31,6 @@ class Parser:
             help="Port range to scan (e.g., 80, 1-100, 22,80,443, 1-65535) (default: 1-1000)"
         )
         
-        """
         # Timing options
         self.parser.add_argument(
             "-t", "--timeout",
@@ -39,6 +38,7 @@ class Parser:
             default=1.0,
             help="Timeout in seconds for each probe (default: 1.0)"
         )
+        """
         
         self.parser.add_argument(
             "-d", "--delay",
@@ -59,13 +59,15 @@ class Parser:
             help="Output file to save results"
         )
         
+        """
         # Advanced options
         self.parser.add_argument(
-            "--threads",
+            "-j", "--join-threads",
             type=int,
-            default=10,
+            default=2,
             help="Number of threads for parallel scanning (default: 10)"
         )
+        """
         
         self.parser.add_argument(
             "--retries",

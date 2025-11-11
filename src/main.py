@@ -10,13 +10,14 @@
  TCP ACK 扫描
  UDP 扫描
 """
+import asyncio
 import arg
 import scanner
-def main():
+async def main():
     parser = arg.Parser()
     args = parser.parse_args()
     scan = scanner.Scanner(args)
-    scan.run()
+    await scan.run()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
