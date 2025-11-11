@@ -162,6 +162,7 @@ class Parser:
         except Exception as ex:
             logging.error(f"Error parsing target list: {ex}")
             logging.error(self.get_usage_examples())
+            raise ex
 
     def _cidr_to_ip_list(self, cidr: str) -> list[str]:
         """

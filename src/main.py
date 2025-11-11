@@ -11,10 +11,12 @@
  UDP 扫描
 """
 import arg
+import scanner
 def main():
     parser = arg.Parser()
     args = parser.parse_args()
-    print(args)
+    scan = scanner.Scanner(args)
+    scan.run()
 
 if __name__ == '__main__':
     main()
