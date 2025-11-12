@@ -26,13 +26,12 @@ def test_parser():
     
     # Test 2: Basic scan
     print("\n=== Test 2: Basic SYN scan ===")
-    sys.argv = ['test_parser.py', '192.168.1.1', '-s', 'syn', '-p', '1-100']
+    sys.argv = ['test_parser.py', '192.168.1.1', '-s', 'syn', '-p', '1-100,200']
     args = parser.parse_args()
     print(f"Target: {args.target}")
     print(f"Scan type: {args.scan_type}")
     print(f"Ports: {args.ports}")
     print(f"Timeout: {args.timeout}")
-    print(f"Delay: {args.delay}")
     
     # Test 3: ARP scan
     print("\n=== Test 3: ARP scan ===")

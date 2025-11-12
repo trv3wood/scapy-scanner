@@ -17,7 +17,19 @@ async def main():
     parser = arg.Parser()
     args = parser.parse_args()
     scan = scanner.Scanner(args)
-    await scan.run()
+    result = await scan.run()
+    # print(result)
+    match args.scan_type:
+        case 'icmp' | 'arp':
+            for ip, status in result.items():
+                print(f"{ip} - {status}")
+        case _:
+            for target, port_info in result.items():
+                for port, status in port_info.items():
+                    if status != 'closed':
+                        print(f"{target}:{port} - {status}")
+                    elif args.verbose:
+                        print(f"{target}:{port} - {status}")
 
 if __name__ == '__main__':
     asyncio.run(main())
