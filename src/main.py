@@ -22,13 +22,13 @@ async def main():
     match args.scan_type:
         case 'icmp' | 'arp':
             for ip, status in result.items():
-                print(f"{ip} - {status}")
+                if status != 'offline' or args.verbose:
+                    print(f"{ip} - {status}")
+                        
         case _:
             for target, port_info in result.items():
                 for port, status in port_info.items():
-                    if status != 'closed':
-                        print(f"{target}:{port} - {status}")
-                    elif args.verbose:
+                    if status != 'closed' or args.verbose:
                         print(f"{target}:{port} - {status}")
 
 if __name__ == '__main__':
