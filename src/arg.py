@@ -31,7 +31,6 @@ class Parser:
             help="Port range to scan (e.g., 80, 1-100, 22,80,443, 1-65535) (default: 1-1000)"
         )
         
-        """
         # Timing options
         self.parser.add_argument(
             "-t", "--timeout",
@@ -39,6 +38,7 @@ class Parser:
             default=1.0,
             help="Timeout in seconds for each probe (default: 1.0)"
         )
+        """
         
         self.parser.add_argument(
             "-d", "--delay",
@@ -47,25 +47,29 @@ class Parser:
             help="Delay between probes in seconds (default: 0.1)"
         )
         
+        """
         # Output options
         self.parser.add_argument(
             "-v", "--verbose",
             action="store_true",
             help="Enable verbose output"
         )
+        """
         
         self.parser.add_argument(
             "-o", "--output",
             help="Output file to save results"
         )
         
+        """
         # Advanced options
         self.parser.add_argument(
-            "--threads",
+            "-j", "--join-threads",
             type=int,
-            default=10,
-            help="Number of threads for parallel scanning (default: 10)"
+            default=2,
+            help="Number of threads for parallel scanning (default: 2)"
         )
+        """
         
         self.parser.add_argument(
             "--retries",
@@ -111,6 +115,7 @@ class Parser:
         # Process the target argument using our custom parsing
         if hasattr(args, 'target'):
             args.targets = self._setup_target(args.target)
+        args.ports = self._parse_ports(args.ports)
         return args
     
     def print_help(self):
@@ -162,6 +167,7 @@ class Parser:
         except Exception as ex:
             logging.error(f"Error parsing target list: {ex}")
             logging.error(self.get_usage_examples())
+            raise ex
 
     def _cidr_to_ip_list(self, cidr: str) -> list[str]:
         """
@@ -237,3 +243,19 @@ class Parser:
             return result
         except (ValueError, IndexError):
             raise ValueError(f"Invalid IP range format: {range_str}")
+
+    def _parse_ports(self, arg_ports):
+        """解析端口范围字符串，如 '80,443,1000-2000'"""
+        if not arg_ports:
+            return range(1, 1025)  # 默认扫描常用端口
+        
+        ports = set()
+        for part in arg_ports.split(','):
+            part = part.strip()
+            if '-' in part:
+                start, end = part.split('-')
+                ports.update(range(int(start), int(end) + 1))
+            else:
+                ports.add(int(part))
+        
+        return sorted(ports)

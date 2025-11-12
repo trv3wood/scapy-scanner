@@ -10,11 +10,26 @@
  TCP ACK 扫描
  UDP 扫描
 """
+import asyncio
 import arg
-def main():
+import scanner
+async def main():
     parser = arg.Parser()
     args = parser.parse_args()
-    print(args)
+    scan = scanner.Scanner(args)
+    result = await scan.run()
+    # print(result)
+    match args.scan_type:
+        case 'icmp' | 'arp':
+            for ip, status in result.items():
+                if status != 'offline' or args.verbose:
+                    print(f"{ip} - {status}")
+                        
+        case _:
+            for target, port_info in result.items():
+                for port, status in port_info.items():
+                    if status != 'closed' or args.verbose:
+                        print(f"{target}:{port} - {status}")
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
