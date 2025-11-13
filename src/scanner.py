@@ -52,6 +52,7 @@ class Scanner:
                 ether_packet = Ether(dst="ff:ff:ff:ff:ff:ff")
                 # 组合包
                 packet = ether_packet/arp_packet
+                # packet = arp_packet
                 
                 # 发送ARP请求并等待响应
                 response = await loop.run_in_executor(
@@ -59,6 +60,7 @@ class Scanner:
                     lambda: srp1(packet, timeout=self.timeout, verbose=self.verbose)
                 )
                 
+                # print(response)
                 if response is None:
                     return target, "offline"  # 无响应，主机离线
                 elif response.haslayer(ARP):
@@ -95,7 +97,7 @@ class Scanner:
                 if response is None:
                     return target, port, "filtered"  # 无响应，可能被过滤
                 elif response.haslayer(TCP):
-                    if response[TCP].flags == 0x12:  # SYN-ACK
+                    if response[TCP].flags == "SA":  # SYN-ACK
                         # 发送RST包关闭连接
                         rst_packet = IP(dst=target)/TCP(dport=port, flags="R")
                         await loop.run_in_executor(
@@ -103,7 +105,7 @@ class Scanner:
                             lambda: sr1(rst_packet, timeout=self.timeout, verbose=False)
                         )
                         return target, port, "open"
-                    elif response[TCP].flags == 0x14:  # RST-ACK
+                    elif response[TCP].flags == "RA":  # RST-ACK
                         return target, port, "closed"
                 return target, port, "filtered"
             except Exception as e:
@@ -123,16 +125,9 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "open":
-            #     print(f"{target}:{port} - OPEN")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
+ 
         return results
     
-
-        
     async def icmp_scan(self):
         """ICMP扫描 - 使用ping检测主机是否在线"""
         async def scan(target):
@@ -202,12 +197,7 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "open":
-            #     print(f"{target}:{port} - OPEN")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
+
         return results
     async def tcp_xmas_scan(self):
         """XMAS扫描 - 发送FIN, URG, PUSH标志的包，根据响应判断端口状态"""
@@ -246,13 +236,6 @@ class Scanner:
                 results[target] = {}
             results[target][port] = status
             
-            # if status == "open|filtered":
-            #     print(f"{target}:{port} - OPEN|FILTERED")
-            # elif status == "closed":
-            #     print(f"{target}:{port} - CLOSED")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
         return results
     async def tcp_fin_scan(self):
         """FIN扫描 - 发送FIN包，根据响应判断端口状态"""
@@ -290,14 +273,6 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "open|filtered":
-            #     print(f"{target}:{port} - OPEN|FILTERED")
-            # elif status == "closed":
-            #     print(f"{target}:{port} - CLOSED")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
         return results
     async def tcp_null_scan(self):
         """NULL扫描 - 发送无标志的TCP包，根据响应判断端口状态"""
@@ -335,14 +310,7 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "open|filtered":
-            #     print(f"{target}:{port} - OPEN|FILTERED")
-            # elif status == "closed":
-            #     print(f"{target}:{port} - CLOSED")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
+
         return results
     async def tcp_ack_scan(self):
         """ACK扫描 - 发送ACK包，用于检测防火墙规则"""
@@ -360,7 +328,7 @@ class Scanner:
                 if response is None:
                     return target, port, "filtered"  # 无响应，被过滤
                 elif response.haslayer(TCP):
-                    if response[TCP].flags == 0x14:  # RST-ACK
+                    if response[TCP].flags == "R":  # RST
                         return target, port, "unfiltered"  # 未过滤
                 return target, port, "filtered"
             except Exception as e:
@@ -380,12 +348,7 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "unfiltered":
-            #     print(f"{target}:{port} - UNFILTERED")
-            # elif self.verbose:
-            #     print(f"{target}:{port} - {status}")
-        
+
         return results
     async def udp_scan(self):
         """UDP扫描 - 发送UDP包，根据响应判断端口状态"""
@@ -436,12 +399,5 @@ class Scanner:
             if target not in results:
                 results[target] = {}
             results[target][port] = status
-            
-            # if status == "open":
-            #     print(f"{target}:{port}/udp - OPEN")
-            # elif status == "closed":
-            #     print(f"{target}:{port}/udp - CLOSED")
-            # elif self.verbose:
-            #     print(f"{target}:{port}/udp - {status}")
-        
+ 
         return results
